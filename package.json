@@ -1,0 +1,31 @@
+{
+  "name": "fehbot",
+  "version": "1.0.0",
+  "description": "This bot has been written in a Windows environment. Other environments may be used as well but may need slightly different set up steps.",
+  "main": "bot.js",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0",
+    "twitter": "^1.7.1"
+  },
+  "engines": {
+    "node": "8.x",
+    "npm": "*"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node bot.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calebturcotte/discordbot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/calebturcotte/discordbot/issues"
+  },
+  "homepage": "https://github.com/calebturcotte/discordbot#readme"
+}
