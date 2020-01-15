@@ -16,6 +16,9 @@ const client = new Discord.Client();
 //For Heroku Functionality we are going to use process.env
 const config = process.env;
 
+//this is used for our screen scraping function
+const rp = require('request-promise');
+const $ = require('cheerio');
 
 //Adding our Twitter functionality
 var Twitter = require('twitter');
@@ -36,8 +39,9 @@ var params = {
   lang: 'en',
   tweet_mode: 'extended'
 };
-  
 
+//link to gamepress website used
+var heroweb = "https://gamepress.gg/feheroes/hero/";
 
 client.on("ready", () => {
   var allGuilds = client.guilds;
@@ -156,7 +160,7 @@ client.on("message", async message => {
     })
   }}
 
-
+  //twitter command
   if(command === "calendar"){
     tclient.get('search/tweets', params, function(error, tweets, response) {
         if(!error){
@@ -167,13 +171,41 @@ client.on("message", async message => {
       
         message.channel.send(embedmessage);
        
-        //console.log(tweets);
+        console.log(tweets);
         }
      });
 
+   
+
   }
 
-  
+  //gamepress command
+  if(command === "h" || command === "hero"){
+    //message.channel.send("hello");
+    value = message.content.slice(config.prefix.length).trim().split(/ +/g);
+    if (value[1] == null) return;
+    var url = heroweb+value[1];
+    rp(url).then(function(html){
+      //success!
+     var herostring = $('.modal-img-target',html).attr('onclick');
+     var herolength = herostring.length - 2;
+
+     var heroalts = $('.feh-list-title',html).text();
+     console.log(heroalts);
+     var embedmessage = new Discord.RichEmbed().setTitle(value[1]+".com").setURL(url).setImage("https://gamepress.gg/"+herostring.substring(14, herolength));
+     //var changedembed = embedmessage.embeds[0];
+     //var secondembed
+     //heroalts.foreach(element => {
+     // secondembed = new Discord.RichEmbed(changedembed).addField(heroalts[0])
+     //}).catch(function(err){});
+      
+     message.channel.send(embedmessage);
+    })
+      .catch(function(err){
+        message.channel.send("This hero is not in FEH yet!");
+    //handle error
+    });
+  }  
   
 
 
