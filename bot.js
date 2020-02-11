@@ -16,6 +16,12 @@ const client = new Discord.Client();
 //For Heroku Functionality we are going to use process.env
 const config = process.env;
 
+//below is the setup for our MongoDB connection config.mongosite are the url used to connect to your mongo database 
+const MongoClient = require('mongodb').MongoClient;
+const uri = config.mongosite;
+const mongoclient = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+
 //this is used for our screen scraping function
 const rp = require('request-promise');
 const $ = require('cheerio');
@@ -49,7 +55,7 @@ client.on("ready", () => {
   console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`); 
   //adds variable when bot logs in/turned on
   allGuilds.tap(function(guild){
-    console.log(guild.id);
+    console.log("guild id:" + guild.id);
     
   });
   // Example of changing the bot's playing game to something useful. `client.user` is what the
@@ -100,6 +106,7 @@ client.on("message", async message => {
   
     if(command === "help"){
         message.channel.send("Hi I do things, try pressing !calendar");
+
     }
 
   //Commands below
@@ -164,18 +171,24 @@ client.on("message", async message => {
   if(command === "calendar"){
     tclient.get('search/tweets', params, function(error, tweets, response) {
         if(!error){
-       var text = tweets.statuses[0].text;
-          
-       var img = tweets.statuses[0].extended_entities.media[0].media_url_https;
-       var embedmessage = new Discord.RichEmbed().setTitle("The current calendar").setImage(img);
-      
-        message.channel.send(embedmessage);
+          if(tweets.statuses[0] != null){
+            var img = tweets.statuses[0].extended_entities.media[0].media_url_https;
+            //for now each successful tweet search will replace our value in the database
+            insertcalendar(img);
        
-        console.log(tweets);
+            console.log(tweets);
+            var embedmessage = new Discord.RichEmbed().setTitle("The current calendar").setImage(img);
+            message.channel.send(embedmessage);
+          }
+          else {
+            retrievecalendar(function(image){
+              console.log(image);
+              var embedmessage = new Discord.RichEmbed().setTitle("The current calendar").setImage(image);
+              message.channel.send(embedmessage);
+            })
+          }
         }
      });
-
-   
 
   }
 
@@ -212,3 +225,35 @@ client.on("message", async message => {
 })
 
 client.login(config.token);
+
+//we will make a callback function to retrieve the calendar so we can use it in an embedded message
+retrievecalendar = function(callback){
+mongoclient.connect(err => {
+  
+    const collection = mongoclient.db("armory").collection("calendars")
+    
+  // perform actions on the collection object
+    collection.findOne({_id:1},function(err, items) {
+      if (items !=null){
+        return callback(items.calendar);
+      }
+      else console.log("query is null");
+    })
+});
+}
+
+//and another function to insert the calendar
+insertcalendar = function(webstring){
+  mongoclient.connect(err => {
+    if (err) throw console.log(err);
+      const collection = mongoclient.db("armory").collection("calendars")
+
+    // perform actions on the collection object
+    collection.deleteMany({_id:1})
+      collection.insertOne({_id:1,calendar: webstring}, (err, result) => {
+          console.log("logged : " + webstring);
+      })
+    
+  });
+}
+
