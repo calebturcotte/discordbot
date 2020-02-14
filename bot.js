@@ -22,7 +22,7 @@ const uri = config.mongosite;
 const mongoclient = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
 
-//this is used for our screen scraping function
+//this is used for our screen scraping functionality
 const rp = require('request-promise');
 const $ = require('cheerio');
 
@@ -197,26 +197,27 @@ client.on("message", async message => {
     //message.channel.send("hello");
     value = message.content.slice(config.prefix.length).trim().split(/ +/g);
     if (value[1] == null) return;
-    var url = heroweb+value[1];
-    rp(url).then(function(html){
+      var url = heroweb+value[1];
+      rp(url).then(function(html){
       //success!
-     var herostring = $('.modal-img-target',html).attr('onclick');
-     var herolength = herostring.length - 2;
+      var herostring = $('.modal-img-target',html).attr('onclick');
+      var herolength = herostring.match(/\('[^]+'\)+/g)[0].length - 2;
 
-     var heroalts = $('.feh-list-title',html).text();
-     console.log(heroalts);
-     var embedmessage = new Discord.RichEmbed().setTitle(value[1]+".com").setURL(url).setImage("https://gamepress.gg/"+herostring.substring(14, herolength));
-     //var changedembed = embedmessage.embeds[0];
-     //var secondembed
-     //heroalts.foreach(element => {
-     // secondembed = new Discord.RichEmbed(changedembed).addField(heroalts[0])
-     //}).catch(function(err){});
+      var heroalts = $('.feh-list-title',html).text();
+      console.log(heroalts);
+
+      console.log(herostring.match(/\('[^]+'\)+/g)[0]);
+      var embedmessage = new Discord.RichEmbed().setTitle(value[1]+".com").setURL(url).setImage("https://gamepress.gg/"+herostring.match(/\('[^]+'\)+/g)[0].substring(2, herolength));
+      //var changedembed = embedmessage.embeds[0];
+      //var secondembed
+      //heroalts.foreach(element => {
+      // secondembed = new Discord.RichEmbed(changedembed).addField(heroalts[0])
+      //}).catch(function(err){});
       
-     message.channel.send(embedmessage);
-    })
-      .catch(function(err){
-        message.channel.send("This hero is not in FEH yet!");
-    //handle error
+      message.channel.send(embedmessage);
+    }).catch(function(err){
+      message.channel.send("This hero is not in FEH yet!");
+      //handle error
     });
   }  
   
@@ -228,18 +229,18 @@ client.login(config.token);
 
 //we will make a callback function to retrieve the calendar so we can use it in an embedded message
 retrievecalendar = function(callback){
-mongoclient.connect(err => {
+  mongoclient.connect(err => {
   
     const collection = mongoclient.db("armory").collection("calendars")
     
-  // perform actions on the collection object
+    // perform actions on the collection object
     collection.findOne({_id:1},function(err, items) {
       if (items !=null){
         return callback(items.calendar);
       }
       else console.log("query is null");
     })
-});
+  });
 }
 
 //and another function to insert the calendar
