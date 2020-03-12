@@ -8,7 +8,7 @@ This bot has been written in a Windows environment. Other environments may be us
 To fully use this bot you must include keys from the discord developer portal and the twitter developer portal.
 
 to install all of the dependencies needed run:
-'npm install'
+`npm install`
 
 
 The purpose of this bot is to provide more information about the popular mobile game: fire emblem heroes

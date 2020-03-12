@@ -194,25 +194,42 @@ client.on("message", async message => {
 
   //gamepress command
   if(command === "h" || command === "hero"){
-    //message.channel.send("hello");
     value = message.content.slice(config.prefix.length).trim().split(/ +/g);
     if (value[1] == null) return;
-      var url = heroweb+value[1];
+      if(value[2] != null){
+        var heroname = value[1]+'-'+value[2];
+      }else{
+        var heroname = value[1];
+      }
+      var url = heroweb + heroname;
       rp(url).then(function(html){
-      //success!
+      //first we collect info about the hero
       var herostring = $('.modal-img-target',html).attr('onclick');
       var herolength = herostring.match(/\('[^]+'\)+/g)[0].length - 2;
+      
+      var heroalts = [];
+      $('.feh-list-title',html).each( (index, value) =>{
+        heroalts[index]= $(value).text();
+      });
 
-      var heroalts = $('.feh-list-title',html).text();
-      console.log(heroalts);
+      var herolinks=[];
+      $('div[class="feh-list-item"]', html).find('a').each( (index,value) => {
+           herolinks[index] = $(value).attr('href')
+         });
+      
+      var bst = $('.max-stats-number',html).text();
+      var stats = $('.stat-text',html).text();
 
-      console.log(herostring.match(/\('[^]+'\)+/g)[0]);
-      var embedmessage = new Discord.RichEmbed().setTitle(value[1]+".com").setURL(url).setImage("https://gamepress.gg/"+herostring.match(/\('[^]+'\)+/g)[0].substring(2, herolength));
-      //var changedembed = embedmessage.embeds[0];
-      //var secondembed
-      //heroalts.foreach(element => {
-      // secondembed = new Discord.RichEmbed(changedembed).addField(heroalts[0])
-      //}).catch(function(err){});
+      //then we create our embedded message
+      const embedmessage = new Discord.RichEmbed()
+      embedmessage.setTitle(heroname).setURL(url).setImage("https://gamepress.gg/"+herostring.match(/\('[^]+'\)+/g)[0].substring(2, herolength))
+      .addField('Base Stat Total: '+ bst, stats, true);
+      //and add extra information if it is available
+      var altinfo = '';
+      heroalts.forEach((item,index) => {
+        altinfo+= item+" : "+herolinks[index] + '\n'
+      });
+      if(altinfo[0] != null) embedmessage.addField('Alts', altinfo);
       
       message.channel.send(embedmessage);
     }).catch(function(err){
