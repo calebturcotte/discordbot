@@ -227,7 +227,7 @@ client.on("message", async message => {
       //and add extra information if it is available
       var altinfo = '';
       heroalts.forEach((item,index) => {
-        altinfo+= item+" : "+herolinks[index] + '\n'
+        altinfo+= "[" + item+"]("+herolinks[index]+")" + '\n'
       });
       if(altinfo[0] != null) embedmessage.addField('Alts', altinfo);
       
