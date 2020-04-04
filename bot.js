@@ -238,6 +238,19 @@ client.on("message", async message => {
     });
   }  
   
+  //manga search command
+  if(command == "m" ||command == "manga"){
+    console.log("message received");
+    rp("https://fire-emblem-heroes.com/en/manga/").then(function(html){
+      var manganum = $('.new',html).parent().attr('href');
+      var mangalink="https://fire-emblem-heroes.com/en/manga/part/files/img/" + manganum.substr(manganum.length-10)+ ".jpg";
+      var embedmessage = new Discord.RichEmbed().setTitle("The current manga").setImage(mangalink);
+      message.channel.send(embedmessage);
+    }).catch(function(err){
+      message.channel.send("This feature doesn't appear to be working!");
+      //handle error
+    });
+  }
 
 
 })
