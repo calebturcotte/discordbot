@@ -35,10 +35,10 @@ var tclient = new Twitter({
     access_token_key: '',
     access_token_secret: ''
   });
-   
+   //"Here is some info on the events coming" was originally used but FEH's twitter format has changed
 var params = {
   screen_name: 'FE_Heroes_EN',
-  q: '"Here is some info on the events coming" (from:FE_Heroes_EN)',
+  q: '"Here " (from:FE_Heroes_EN)',
   include_rts: false, 
   exclude_replies: true,
   count: '1',
